@@ -5,7 +5,115 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Website</title>
   <style>
-    /* Styles are the same as the previous example */
+    /* General Styles */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Loading Screen Styles */
+    .loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    .loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .loading-spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Login and Registration Screens Styles */
+    .login-screen, .registration-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(51, 51, 51, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9998;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    .login-screen.hidden, .registration-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .login-form, .registration-form {
+      background-color: #fff;
+      padding: 40px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-form h2, .registration-form h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .login-form input, .registration-form input {
+      width: 300px;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .login-form button, .registration-form button {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-form button:hover, .registration-form button:hover {
+      background-color: #45a049;
+    }
+
+    /* Main Screen Styles */
+    .main-screen {
+      display: none;
+      padding: 40px;
+    }
+
+    .main-screen.visible {
+      display: block;
+    }
+
+    .main-screen h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
@@ -13,84 +121,31 @@
     <div class="loading-spinner"></div>
   </div>
 
-  <?php
-    // Check if the user is logged in
-    session_start();
-    if (isset($_SESSION['username'])) {
-      // Display the main screen
-      echo '
-        <div class="main-screen visible">
-          <h1>Welcome to the Main Screen</h1>
-          <p>You have successfully logged in or registered!</p>
-        </div>
-      ';
-    } else {
-      // Display the login or registration screen
-      if (isset($_GET['action']) && $_GET['action'] === 'register') {
-        // Display the registration screen
-        echo '
-          <div class="registration-screen">
-            <div class="registration-form">
-              <h2>Register</h2>
-              <form method="post" action="index.php?action=register">
-                <input type="text" id="reg-username" name="reg-username" placeholder="Username" required>
-                <input type="email" id="reg-email" name="reg-email" placeholder="Email" required>
-                <input type="password" id="reg-password" name="reg-password" placeholder="Password" required>
-                <button type="submit">Register</button>
-                <p>Already have an account? <a href="index.php">Login</a></p>
-              </form>
-            </div>
-          </div>
-        ';
+  <div class="login-screen">
+    <div class="login-form">
+      <h2>Login</h2>
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button onclick="login()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="showRegistrationScreen()">Register</a></p>
+    </div>
+  </div>
 
-        // Process the registration form
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-          $username = $_POST['reg-username'];
-          $email = $_POST['reg-email'];
-          $password = $_POST['reg-password'];
+  <div class="registration-screen hidden">
+    <div class="registration-form">
+      <h2>Register</h2>
+      <input type="text" id="reg-username" placeholder="Username" required>
+      <input type="email" id="reg-email" placeholder="Email" required>
+      <input type="password" id="reg-password" placeholder="Password" required>
+      <button onclick="register()">Register</button>
+      <p>Already have an account? <a href="#" onclick="showLoginScreen()">Login</a></p>
+    </div>
+  </div>
 
-          // Here, you can add your registration logic, such as saving the user to a database
-          echo "Registering user: $username, $email, $password";
-
-          // Set the session and redirect to the main screen
-          $_SESSION['username'] = $username;
-          header('Location: index.php');
-          exit;
-        }
-      } else {
-        // Display the login screen
-        echo '
-          <div class="login-screen">
-            <div class="login-form">
-              <h2>Login</h2>
-              <form method="post" action="index.php">
-                <input type="text" id="username" name="username" placeholder="Username" required>
-                <input type="password" id="password" name="password" placeholder="Password" required>
-                <button type="submit">Login</button>
-                <p>Don't have an account? <a href="index.php?action=register">Register</a></p>
-              </form>
-            </div>
-          </div>
-        ';
-
-        // Process the login form
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-          $username = $_POST['username'];
-          $password = $_POST['password'];
-
-          // Here, you can add your login logic, such as checking against a database
-          if ($username === 'admin' && $password === 'password') {
-            // Set the session and redirect to the main screen
-            $_SESSION['username'] = $username;
-            header('Location: index.php');
-            exit;
-          } else {
-            echo "Invalid username or password";
-          }
-        }
-      }
-    }
-  ?>
+  <div class="main-screen">
+    <h1>Welcome to the Main Screen</h1>
+    <p>You have successfully logged in or registered!</p>
+  </div>
 
   <script>
     // Loading Screen
@@ -98,6 +153,61 @@
       const loadingScreen = document.querySelector('.loading-screen');
       loadingScreen.classList.add('hidden');
     });
+
+    // Login Functionality
+    function login() {
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const username = usernameInput.value;
+      const password = passwordInput.value;
+
+      // Here, you can add your login logic, such as checking against a database or an API
+      if (username === 'admin' && password === 'password') {
+        showMainScreen();
+      } else {
+        alert('Invalid username or password');
+      }
+    }
+
+    // Registration Functionality
+    function register() {
+      const usernameInput = document.getElementById('reg-username');
+      const emailInput = document.getElementById('reg-email');
+      const passwordInput = document.getElementById('reg-password');
+      const username = usernameInput.value;
+      const email = emailInput.value;
+      const password = passwordInput.value;
+
+      // Here, you can add your registration logic, such as sending the data to a server
+      console.log('Registering user:', { username, email, password });
+      showMainScreen();
+    }
+
+    function showLoginScreen() {
+      const loginScreen = document.querySelector('.login-screen');
+      const registrationScreen = document.querySelector('.registration-screen');
+
+      loginScreen.classList.remove('hidden');
+      registrationScreen.classList.add('hidden');
+    }
+
+    function showRegistrationScreen() {
+      const loginScreen = document.querySelector('.login-screen');
+      const registrationScreen = document.querySelector('.registration-screen');
+
+      loginScreen.classList.add('hidden');
+      registrationScreen.classList.remove('hidden');
+    }
+
+    function showMainScreen() {
+      const loginScreen = document.querySelector('.login-screen');
+      const registrationScreen = document.querySelector('.registration-screen');
+      const mainScreen = document.querySelector('.main-screen');
+
+      loginScreen.classList.add('hidden');
+      registrationScreen.classList.add('hidden');
+      mainScreen.classList.add('visible');
+    }
   </script>
 </body>
 </html>
